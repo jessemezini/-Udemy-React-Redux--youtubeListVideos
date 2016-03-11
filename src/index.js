@@ -16,15 +16,7 @@ class App extends Component {
       selectedVideo: null,
     };
 
-    ytsearch({
-      key: API_KEY,
-      term: 'reactjs',
-    }, (videos) => {
-      this.setState({
-        videos,
-        selectedVideo: videos[0],
-      });
-    });
+    this.videoSearch('redux');
 
     this.onVideoSelect = this.onVideoSelect.bind(this);
   }
@@ -33,10 +25,22 @@ class App extends Component {
     this.setState({ selectedVideo });
   }
 
+  videoSearch(term) {
+    ytsearch({
+      key: API_KEY,
+      term,
+    }, (videos) => {
+      this.setState({
+        videos,
+        selectedVideo: videos[0],
+      });
+    });
+  }
+
   render() {
     return (
       <div>
-        <SearchBar />
+        <SearchBar onSearchTermChange={term => this.videoSearch(term)} />
         <VideoDetail video={this.state.selectedVideo} />
         <VideoList
           onVideoSelect={this.onVideoSelect}
