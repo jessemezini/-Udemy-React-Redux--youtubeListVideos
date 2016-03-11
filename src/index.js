@@ -1,15 +1,50 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
+import ytsearch from 'youtube-api-search';
+import SearchBar from './components/SearchBar';
+import VideoDetail from './components/VideoDetail';
+import VideoList from './components/VideoList';
 
-import App from './components/app';
-import reducers from './reducers';
+const API_KEY = 'AIzaSyAn-sE_qU7oj6VSZQAZNg41aVe9-XL6Cbc';
 
-const createStoreWithMiddleware = applyMiddleware()(createStore);
+class App extends Component {
+  constructor(props) {
+    super(props);
 
-ReactDOM.render(
-  <Provider store={createStoreWithMiddleware(reducers)}>
-    <App />
-  </Provider>
-  , document.querySelector('.container'));
+    this.state = {
+      videos: [],
+      selectedVideo: null,
+    };
+
+    ytsearch({
+      key: API_KEY,
+      term: 'reactjs',
+    }, (videos) => {
+      this.setState({
+        videos,
+        selectedVideo: videos[0],
+      });
+    });
+
+    this.onVideoSelect = this.onVideoSelect.bind(this);
+  }
+
+  onVideoSelect(selectedVideo) {
+    this.setState({ selectedVideo });
+  }
+
+  render() {
+    return (
+      <div>
+        <SearchBar />
+        <VideoDetail video={this.state.selectedVideo} />
+        <VideoList
+          onVideoSelect={this.onVideoSelect}
+          videos={this.state.videos}
+        />
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<App />, document.querySelector('.container'));
